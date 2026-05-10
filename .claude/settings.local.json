@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx --version)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npx tailwindcss *)",
+      "Bash(mkdir src *)",
+      "Bash(mkdir src\\\\routes)",
+      "Bash(mkdir src\\\\controllers)",
+      "Bash(mkdir src\\\\middleware)",
+      "Bash(mkdir src\\\\uploads)",
+      "Bash(npx prisma *)",
+      "Bash(docker --version)",
+      "Bash(npm run *)",
+      "PowerShell(docker --version 2>&1)",
+      "Bash(psql --version)",
+      "Bash(pg_ctl --version)",
+      "Bash(psql -U postgres -c \"SELECT version\\(\\);\")",
+      "Bash(psql -U postgres -h localhost -c \"SELECT version\\(\\);\")",
+      "Bash(cat \"C:/Program Files/PostgreSQL/18/data/pg_hba.conf\" 2>&1 | tail -20)",
+      "Read(//c/Program Files/PostgreSQL/18/data/**)",
+      "PowerShell($env:PGPASSWORD = \"123\"; psql -U postgres -h 127.0.0.1 -c \"SELECT version\\(\\);\" 2>&1)",
+      "Bash(node prisma/seed.js)",
+      "Bash(node server.js)",
+      "Bash(curl -s http://localhost:5000/api/health)",
+      "Bash(curl -s -X POST http://localhost:5000/api/auth/login -H \"Content-Type: application/json\" -d \"{\\\\\"email\\\\\":\\\\\"admin@simplesoftware.com\\\\\",\\\\\"password\\\\\":\\\\\"admin123\\\\\"}\")",
+      "PowerShell(Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Id 4120 -Force)",
+      "Bash(node -e ' *)",
+      "Bash(git init *)",
+      "Bash(git add *)"
+    ]
+  }
+}

@@ -1,0 +1,140 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  DEVELOPER
+}
+
+enum Category {
+  WEB
+  MOBILE
+  DESKTOP
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  ON_HOLD
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  DONE
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(DEVELOPER)
+  avatar       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  notes        ProjectNote[]
+}
+
+model Project {
+  id                String        @id @default(cuid())
+  title             String
+  shortDesc         String
+  fullDesc          String        @db.Text
+  category          Category
+  clientName        String
+  liveUrl           String?
+  thumbnailUrl      String?
+  status            ProjectStatus @default(PLANNING)
+  completionPercent Int           @default(0)
+  startDate         DateTime?
+  endDate           DateTime?
+  isPublic          Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  images            ProjectImage[]
+  finance           ProjectFinance?
+  milestones        Milestone[]
+  notes             ProjectNote[]
+}
+
+model ProjectImage {
+  id        String   @id @default(cuid())
+  projectId String
+  imageUrl  String
+  caption   String?
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectFinance {
+  id            String        @id @default(cuid())
+  projectId     String        @unique
+  budget        Float         @default(0)
+  totalExpenses Float         @default(0)
+  totalRevenue  Float         @default(0)
+  paymentStatus PaymentStatus @default(PENDING)
+  notes         String?       @db.Text
+  project       Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Milestone {
+  id          String          @id @default(cuid())
+  projectId   String
+  title       String
+  description String?
+  status      MilestoneStatus @default(PENDING)
+  dueDate     DateTime?
+  project     Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model ProjectNote {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Service {
+  id          String @id @default(cuid())
+  title       String
+  description String @db.Text
+  icon        String
+  orderIndex  Int    @default(0)
+}
+
+model AboutContent {
+  id                 String  @id @default(cuid())
+  mission            String  @db.Text
+  vision             String  @db.Text
+  companyDescription String  @db.Text
+  foundedYear        Int
+  teamSize           Int
+  contactEmail       String?
+  contactPhone       String?
+  location           String?
+}
+
+model ContactSubmission {
+  id               String   @id @default(cuid())
+  name             String
+  email            String?
+  telegramUsername String?
+  message          String   @db.Text
+  isRead           Boolean  @default(false)
+  createdAt        DateTime @default(now())
+}
