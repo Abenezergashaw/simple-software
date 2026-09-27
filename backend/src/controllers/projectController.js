@@ -1,6 +1,7 @@
 const prisma = require('../prisma');
 const path = require('path');
 const fs = require('fs');
+const { processImage, processImages } = require('../utils/imageProcessor');
 
 const projectSelect = {
   id: true, title: true, shortDesc: true, fullDesc: true, category: true, categories: true,
@@ -61,8 +62,9 @@ const createProject = async (req, res) => {
   const { title, shortDesc, fullDesc, category, clientName, liveUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
   const categories = parseCategories(req.body.categories, category);
   const thumbnail = req.files?.thumbnail?.[0];
-  const gallery = req.files?.images || [];
-  const thumbnailUrl = thumbnail ? `/uploads/${thumbnail.filename}` : null;
+  const processedThumbnail = thumbnail ? await processImage(thumbnail) : null;
+  const gallery = await processImages(req.files?.images || []);
+  const thumbnailUrl = processedThumbnail?.imageUrl || null;
   const project = await prisma.project.create({
     data: {
       title, shortDesc, fullDesc, category: categories[0], categories, clientName,
@@ -73,7 +75,7 @@ const createProject = async (req, res) => {
       endDate: endDate ? new Date(endDate) : null,
       isPublic: isPublic === 'true' || isPublic === true,
       finance: { create: {} },
-      images: { create: gallery.map((file) => ({ imageUrl: `/uploads/${file.filename}`, caption: '' })) },
+      images: { create: gallery.map((file) => ({ imageUrl: file.imageUrl, caption: '' })) },
     },
     include: { finance: true },
   });
@@ -92,9 +94,10 @@ const updateProject = async (req, res) => {
     isPublic: isPublic === 'true' || isPublic === true,
   };
   const thumbnail = req.files?.thumbnail?.[0];
-  const gallery = req.files?.images || [];
-  if (thumbnail) data.thumbnailUrl = `/uploads/${thumbnail.filename}`;
-  if (gallery.length) data.images = { create: gallery.map((file) => ({ imageUrl: `/uploads/${file.filename}`, caption: '' })) };
+  const processedThumbnail = thumbnail ? await processImage(thumbnail) : null;
+  const gallery = await processImages(req.files?.images || []);
+  if (processedThumbnail) data.thumbnailUrl = processedThumbnail.imageUrl;
+  if (gallery.length) data.images = { create: gallery.map((file) => ({ imageUrl: file.imageUrl, caption: '' })) };
   const project = await prisma.project.update({ where: { id: req.params.id }, data, include: { images: true } });
   res.json(project);
 };
@@ -105,7 +108,8 @@ const deleteProject = async (req, res) => {
 };
 
 const addImages = async (req, res) => {
-  const images = req.files.map((f) => ({ projectId: req.params.id, imageUrl: `/uploads/${f.filename}`, caption: '' }));
+  const processed = await processImages(req.files);
+  const images = processed.map((file) => ({ projectId: req.params.id, imageUrl: file.imageUrl, caption: '' }));
   await prisma.projectImage.createMany({ data: images });
   const updated = await prisma.project.findUnique({ where: { id: req.params.id }, include: { images: true } });
   res.json(updated.images);

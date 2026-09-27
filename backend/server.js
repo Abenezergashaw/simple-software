@@ -43,7 +43,9 @@ app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(err.status || 500).json({ message: err.message || 'Internal server error' });
+  const status = err.code === 'LIMIT_FILE_SIZE' ? 413 : (err.status || 500);
+  const message = err.code === 'LIMIT_FILE_SIZE' ? 'Each image must be 5 MB or smaller' : (err.message || 'Internal server error');
+  res.status(status).json({ message });
 });
 
 const server = app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

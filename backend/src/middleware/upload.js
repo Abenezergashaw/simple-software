@@ -1,18 +1,14 @@
 const multer = require('multer');
-const path = require('path');
-const crypto = require('crypto');
 
-const storage = multer.diskStorage({
-  destination: path.join(__dirname, '../uploads'),
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, crypto.randomBytes(16).toString('hex') + ext);
-  },
-});
+// Keep untrusted uploads in memory. They are decoded, sanitized, and re-encoded
+// by imageProcessor before anything is written to persistent storage.
+const storage = multer.memoryStorage();
+
+const allowedMimeTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const fileFilter = (req, file, cb) => {
-  if (file.mimetype.startsWith('image/')) cb(null, true);
-  else cb(new Error('Only image files are allowed'), false);
+  if (allowedMimeTypes.has(file.mimetype)) cb(null, true);
+  else cb(new Error('Only JPEG, PNG, and WebP images are allowed'), false);
 };
 
 const upload = multer({ storage, fileFilter, limits: { fileSize: 5 * 1024 * 1024 } });
