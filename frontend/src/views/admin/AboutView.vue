@@ -21,7 +21,7 @@
           <label class="label">Vision Statement *</label>
           <textarea v-model="form.vision" rows="3" class="input-field resize-none" required></textarea>
         </div>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Founded Year</label>
             <input v-model="form.foundedYear" type="number" class="input-field" min="2000" :max="new Date().getFullYear()" />
@@ -33,7 +33,7 @@
         </div>
         <hr class="border-white/5" />
         <p class="text-muted text-xs uppercase tracking-widest font-semibold">Contact Info (shown on public site)</p>
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Email</label>
             <input v-model="form.contactEmail" type="email" class="input-field" placeholder="hello@simplesoftware.com" />

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
         <h1 class="font-display text-2xl font-semibold text-white">Contact Submissions</h1>
         <p class="text-muted text-sm mt-1">Messages from website visitors.</p>

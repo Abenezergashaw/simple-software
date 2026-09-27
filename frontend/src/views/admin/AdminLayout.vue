@@ -1,11 +1,11 @@
 <template>
-  <div class="min-h-screen bg-navy flex">
+  <div class="min-h-screen bg-navy flex overflow-x-hidden surface-grid">
     <!-- Sidebar -->
-    <aside :class="['fixed inset-y-0 left-0 z-30 w-64 bg-navy-light border-r border-white/5 flex flex-col transition-transform duration-300', sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0']">
+    <aside :class="['fixed inset-y-0 left-0 z-30 w-64 bg-navy-light/95 backdrop-blur-xl border-r border-gold/10 flex flex-col transition-transform duration-300', sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0']">
       <!-- Logo -->
       <div class="flex items-center gap-3 px-5 h-16 border-b border-white/5">
-        <div class="w-8 h-8 rounded-lg bg-gold flex items-center justify-center text-navy font-bold text-sm flex-shrink-0">S</div>
-        <span class="font-display font-semibold text-white text-sm leading-tight">Simple <span class="text-gold">Software</span></span>
+        <img src="/brand-icon.png" alt="" class="w-9 h-9 rounded-xl object-cover flex-shrink-0" />
+        <span class="font-display font-bold text-white text-sm leading-tight tracking-tight">SIMPLE <span class="text-gold">SOFTWARE</span><small class="block text-[8px] tracking-[.18em] text-muted mt-0.5">ADMIN CONSOLE</small></span>
       </div>
 
       <!-- Nav -->
@@ -45,9 +45,9 @@
     <div v-if="sidebarOpen" class="fixed inset-0 z-20 bg-black/50 lg:hidden" @click="sidebarOpen = false"></div>
 
     <!-- Main content -->
-    <div class="flex-1 lg:ml-64 flex flex-col min-h-screen">
+    <div class="flex-1 lg:ml-64 flex flex-col min-h-screen w-full min-w-0">
       <!-- Topbar -->
-      <header class="sticky top-0 z-10 h-16 bg-navy-light/80 backdrop-blur border-b border-white/5 flex items-center px-4 gap-4">
+      <header class="sticky top-0 z-10 h-16 bg-navy/80 backdrop-blur-xl border-b border-gold/10 flex items-center px-4 md:px-6 gap-4">
         <button class="lg:hidden text-muted hover:text-white p-1" @click="sidebarOpen = !sidebarOpen">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
@@ -61,7 +61,7 @@
       </header>
 
       <!-- Page content -->
-      <main class="flex-1 p-4 md:p-6 lg:p-8">
+      <main class="flex-1 p-4 md:p-6 lg:p-8 w-full max-w-[1600px] mx-auto overflow-x-hidden">
         <RouterView />
       </main>
     </div>

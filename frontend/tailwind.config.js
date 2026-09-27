@@ -5,20 +5,20 @@ export default {
     extend: {
       colors: {
         navy: {
-          DEFAULT: '#0A0E1A',
-          light: '#121828',
-          medium: '#1a2540',
+          DEFAULT: '#07111f',
+          light: '#0f172a',
+          medium: '#002b45',
         },
         gold: {
-          DEFAULT: '#C9A84C',
-          light: '#E8C97A',
-          dark: '#a8882e',
+          DEFAULT: '#00d2ff',
+          light: '#6eeaff',
+          dark: '#009cc7',
         },
-        muted: '#7B8AAB',
+        muted: '#8fa8bb',
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Playfair Display', 'serif'],
+        sans: ['Manrope', 'sans-serif'],
+        display: ['Space Grotesk', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.6s ease forwards',
@@ -28,7 +28,7 @@ export default {
       keyframes: {
         fadeIn: { from: { opacity: 0 }, to: { opacity: 1 } },
         slideUp: { from: { opacity: 0, transform: 'translateY(30px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
-        glowPulse: { '0%,100%': { boxShadow: '0 0 20px rgba(201,168,76,0.3)' }, '50%': { boxShadow: '0 0 40px rgba(201,168,76,0.6)' } },
+        glowPulse: { '0%,100%': { boxShadow: '0 0 20px rgba(0,210,255,0.2)' }, '50%': { boxShadow: '0 0 40px rgba(0,210,255,0.45)' } },
       },
     },
   },

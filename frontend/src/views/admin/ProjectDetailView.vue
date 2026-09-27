@@ -31,7 +31,7 @@
         <div class="card p-6">
           <h2 class="text-white font-semibold mb-3">Description</h2>
           <p class="text-muted leading-relaxed">{{ project.fullDesc }}</p>
-          <div class="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5 text-sm">
+          <div class="grid sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5 text-sm">
             <div><p class="text-muted mb-1">Start Date</p><p class="text-white">{{ formatDate(project.startDate) }}</p></div>
             <div><p class="text-muted mb-1">End Date</p><p class="text-white">{{ formatDate(project.endDate) }}</p></div>
             <div><p class="text-muted mb-1">Live URL</p><a v-if="project.liveUrl" :href="project.liveUrl" target="_blank" class="text-gold hover:underline truncate block">{{ project.liveUrl }}</a><span v-else class="text-muted">—</span></div>
@@ -119,7 +119,7 @@
       <div class="card p-6">
         <h2 class="text-white font-semibold mb-5">Project Financials</h2>
         <form @submit.prevent="saveFinance" class="space-y-4">
-          <div class="grid grid-cols-2 gap-4">
+          <div class="grid sm:grid-cols-2 gap-4">
             <div>
               <label class="label">Contract Value (ETB) <span class="text-muted font-normal normal-case">— what you quoted the client</span></label>
               <input v-model="finance.budget" type="number" step="0.01" class="input-field" placeholder="0.00" />

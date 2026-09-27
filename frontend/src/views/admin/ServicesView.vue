@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
         <h1 class="font-display text-2xl font-semibold text-white">Services</h1>
         <p class="text-muted text-sm mt-1">Manage the services shown on the public website.</p>
@@ -37,7 +37,7 @@
             <form @submit.prevent="save" class="space-y-4">
               <div><label class="label">Title *</label><input v-model="form.title" class="input-field" required /></div>
               <div><label class="label">Description *</label><textarea v-model="form.description" rows="4" class="input-field resize-none" required></textarea></div>
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid sm:grid-cols-2 gap-4">
                 <div><label class="label">Icon name</label><input v-model="form.icon" class="input-field" placeholder="Monitor" /></div>
                 <div><label class="label">Order</label><input v-model="form.orderIndex" type="number" class="input-field" /></div>
               </div>

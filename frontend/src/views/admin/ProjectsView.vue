@@ -35,7 +35,7 @@
         <svg class="w-10 h-10 mx-auto mb-3 text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
         No projects found.
       </div>
-      <table v-else class="w-full text-sm">
+      <div v-else class="overflow-x-auto"><table class="w-full min-w-[760px] text-sm">
         <thead>
           <tr class="border-b border-white/5 text-muted text-xs uppercase">
             <th class="text-left px-5 py-3 font-medium">Project</th>
@@ -93,7 +93,7 @@
             </td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
 
     <!-- Project Form Modal -->
@@ -107,7 +107,7 @@
               <button @click="showForm = false" class="text-muted hover:text-white"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
             <form @submit.prevent="saveProject" class="p-6 space-y-5">
-              <div class="grid grid-cols-2 gap-4">
+              <div class="grid sm:grid-cols-2 gap-4">
                 <div class="col-span-2">
                   <label class="label">Project Title *</label>
                   <input v-model="form.title" class="input-field" required placeholder="SmartInventory Pro" />

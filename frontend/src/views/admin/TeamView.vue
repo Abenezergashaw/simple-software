@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-8">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
       <div>
         <h1 class="font-display text-2xl font-semibold text-white">Team Management</h1>
         <p class="text-muted text-sm mt-1">Manage admin and developer accounts.</p>
@@ -11,8 +11,8 @@
     <div v-if="loading" class="space-y-3">
       <div v-for="i in 3" :key="i" class="skeleton h-16 rounded-xl"></div>
     </div>
-    <div v-else class="card overflow-hidden">
-      <table class="w-full text-sm">
+    <div v-else class="card overflow-x-auto">
+      <table class="w-full min-w-[640px] text-sm">
         <thead>
           <tr class="border-b border-white/5 text-muted text-xs uppercase">
             <th class="text-left px-5 py-3 font-medium">Member</th>

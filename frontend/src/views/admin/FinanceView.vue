@@ -75,7 +75,7 @@
       <div v-if="loading" class="p-6 space-y-3">
         <div v-for="i in 5" :key="i" class="skeleton h-12 rounded"></div>
       </div>
-      <table v-else-if="reports.length > 0" class="w-full text-sm">
+      <div v-else-if="reports.length > 0" class="overflow-x-auto"><table class="w-full min-w-[780px] text-sm">
         <thead>
           <tr class="border-b border-white/5 text-muted text-xs uppercase">
             <th class="text-left px-5 py-3 font-medium">Project</th>
@@ -110,7 +110,7 @@
             <td class="hidden sm:table-cell"></td>
           </tr>
         </tfoot>
-      </table>
+      </table></div>
       <p v-else-if="!loading" class="text-center text-muted py-16">No finance records found for the selected filters.</p>
     </div>
   </div>

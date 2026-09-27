@@ -8,12 +8,12 @@
     <h1 class="font-display text-2xl font-semibold text-white mb-6">New Project</h1>
     <div class="card p-6">
       <form @submit.prevent="save" class="space-y-5">
-        <div class="grid grid-cols-2 gap-4">
-          <div class="col-span-2"><label class="label">Project Title *</label><input v-model="form.title" class="input-field" required /></div>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div class="sm:col-span-2"><label class="label">Project Title *</label><input v-model="form.title" class="input-field" required /></div>
           <div><label class="label">Category *</label><select v-model="form.category" class="select-field" required><option value="WEB">Web App</option><option value="MOBILE">Mobile App</option><option value="DESKTOP">Desktop</option></select></div>
           <div><label class="label">Client Name *</label><input v-model="form.clientName" class="input-field" required /></div>
-          <div class="col-span-2"><label class="label">Short Description *</label><input v-model="form.shortDesc" class="input-field" required /></div>
-          <div class="col-span-2"><label class="label">Full Description *</label><textarea v-model="form.fullDesc" rows="5" class="input-field resize-none" required></textarea></div>
+          <div class="sm:col-span-2"><label class="label">Short Description *</label><input v-model="form.shortDesc" class="input-field" required /></div>
+          <div class="sm:col-span-2"><label class="label">Full Description *</label><textarea v-model="form.fullDesc" rows="5" class="input-field resize-none" required></textarea></div>
           <div><label class="label">Status</label><select v-model="form.status" class="select-field"><option value="PLANNING">Planning</option><option value="IN_PROGRESS">In Progress</option><option value="COMPLETED">Completed</option><option value="ON_HOLD">On Hold</option></select></div>
           <div><label class="label">Completion %</label><input v-model="form.completionPercent" type="number" min="0" max="100" class="input-field" /></div>
           <div><label class="label">Start Date</label><input v-model="form.startDate" type="date" class="input-field" /></div>
