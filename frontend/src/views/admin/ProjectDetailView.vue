@@ -85,9 +85,40 @@
         </div>
         <!-- Thumbnail -->
         <div v-if="project.thumbnailUrl" class="card overflow-hidden">
-          <img :src="project.thumbnailUrl" :alt="project.title" class="w-full h-40 object-cover" />
+          <img :src="project.thumbnailUrl" :alt="project.title" class="w-full h-40 object-contain p-2 bg-navy-medium" />
         </div>
       </div>
+    </div>
+
+    <!-- Images Tab -->
+    <div v-if="activeTab === 'Images'" class="space-y-6">
+      <div class="card p-5 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-white font-semibold">Project gallery</h2>
+            <p class="text-muted text-sm mt-1">Add up to 10 images at a time. These appear in the public portfolio carousel.</p>
+          </div>
+          <label class="btn-gold text-sm cursor-pointer flex-shrink-0">
+            {{ uploadingImages ? 'Uploading...' : '+ Add images' }}
+            <input type="file" accept="image/*" multiple class="hidden" :disabled="uploadingImages" @change="uploadImages" />
+          </label>
+        </div>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div v-if="project.thumbnailUrl" class="card overflow-hidden group">
+          <div class="h-56 bg-navy-medium"><img :src="project.thumbnailUrl" :alt="project.title + ' thumbnail'" class="w-full h-full object-contain p-2" /></div>
+          <div class="px-4 py-3 text-sm text-muted">Primary thumbnail</div>
+        </div>
+        <div v-for="image in project.images" :key="image.id" class="card overflow-hidden group">
+          <div class="h-56 bg-navy-medium"><img :src="image.imageUrl" :alt="image.caption || project.title" class="w-full h-full object-contain p-2" /></div>
+          <div class="px-4 py-3 flex items-center justify-between gap-3">
+            <span class="text-sm text-muted truncate">Gallery image</span>
+            <button @click="removeImage(image)" class="text-xs text-red-400 hover:text-red-300">Remove</button>
+          </div>
+        </div>
+      </div>
+      <div v-if="!project.thumbnailUrl && !project.images?.length" class="card p-12 text-center text-muted">No images yet. Use “Add images” to create the gallery.</div>
     </div>
 
     <!-- Notes Tab -->
@@ -191,12 +222,13 @@ const isAdmin = computed(() => user.value?.role === 'ADMIN');
 const project = ref(null);
 const loading = ref(true);
 const activeTab = ref('Overview');
-const tabs = computed(() => ['Overview', 'Notes', ...(isAdmin.value ? ['Finance'] : [])]);
+const tabs = computed(() => ['Overview', 'Images', 'Notes', ...(isAdmin.value ? ['Finance'] : [])]);
 const newNote = ref('');
 const showMilestoneForm = ref(false);
 const mForm = ref({ title: '', dueDate: '' });
 const finance = ref({ budget: 0, totalRevenue: 0, totalExpenses: 0, paymentStatus: 'PENDING', notes: '' });
 const savingFinance = ref(false);
+const uploadingImages = ref(false);
 
 const outstanding = computed(() => (parseFloat(finance.value.budget) || 0) - (parseFloat(finance.value.totalRevenue) || 0));
 const profit = computed(() => (parseFloat(finance.value.totalRevenue) || 0) - (parseFloat(finance.value.totalExpenses) || 0));
@@ -222,6 +254,29 @@ const addNote = async () => {
   const { data } = await api.post(`/projects/${route.params.id}/notes`, { content: newNote.value });
   project.value.notes.unshift(data);
   newNote.value = '';
+};
+
+const uploadImages = async (event) => {
+  const files = Array.from(event.target.files || []).slice(0, 10);
+  if (!files.length) return;
+  uploadingImages.value = true;
+  const formData = new FormData();
+  files.forEach((file) => formData.append('images', file));
+  try {
+    const { data } = await api.post(`/projects/${route.params.id}/images`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    project.value.images = data;
+  } catch (error) {
+    alert(error.response?.data?.message || 'Could not upload images');
+  } finally {
+    uploadingImages.value = false;
+    event.target.value = '';
+  }
+};
+
+const removeImage = async (image) => {
+  if (!confirm('Remove this image from the project gallery?')) return;
+  await api.delete(`/projects/${route.params.id}/images/${image.id}`);
+  project.value.images = project.value.images.filter((item) => item.id !== image.id);
 };
 
 const deleteNote = async (nid) => {
