@@ -48,11 +48,13 @@ const getProject = async (req, res) => {
 };
 
 const parseCategories = (value, fallback) => {
-  try {
-    const parsed = Array.isArray(value) ? value : JSON.parse(value || '[]');
-    const valid = [...new Set(parsed.filter((item) => ['WEB', 'MOBILE', 'DESKTOP'].includes(item)))];
-    return valid.length ? valid : [fallback || 'WEB'];
-  } catch { return [fallback || 'WEB']; }
+  let parsed = Array.isArray(value) ? value : [];
+  if (!parsed.length && typeof value === 'string') {
+    try { parsed = JSON.parse(value); }
+    catch { parsed = value.split(',').map((item) => item.replace(/[\[\]"'\\]/g, '').trim()); }
+  }
+  const valid = [...new Set((Array.isArray(parsed) ? parsed : [parsed]).filter((item) => ['WEB', 'MOBILE', 'DESKTOP'].includes(item)))];
+  return valid.length ? valid : [fallback || 'WEB'];
 };
 
 const createProject = async (req, res) => {
