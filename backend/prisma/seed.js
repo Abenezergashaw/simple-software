@@ -34,8 +34,8 @@ async function main() {
       companyDescription: 'Simple Software Development is a passionate team of developers dedicated to building custom software solutions for businesses. We specialize in web applications, mobile apps, and desktop systems that replace slow manual workflows with fast, reliable digital tools. From the first meeting to ongoing maintenance, we are with you every step of the way.',
       foundedYear: 2020,
       teamSize: 8,
-      contactEmail: 'hello@simplesoftware.com',
-      contactPhone: '+251 91 000 0000',
+      contactEmail: 'contact@simplesoftwares.dev',
+      contactPhone: '0940876767 / 0952096767',
       location: 'Gondar, Ethiopia',
     },
   });

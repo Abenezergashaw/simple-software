@@ -17,7 +17,8 @@
               </div>
               <div>
                 <p class="text-muted text-xs">{{ item.label }}</p>
-                <p class="text-white text-sm font-medium">{{ item.value }}</p>
+                <a v-if="item.href" :href="item.href" class="text-white text-sm font-medium hover:text-gold transition-colors break-words">{{ item.value }}</a>
+                <p v-else class="text-white text-sm font-medium">{{ item.value }}</p>
               </div>
             </div>
           </div>
@@ -37,7 +38,7 @@
               </div>
 
               <form v-else @submit.prevent="sendMessage" class="space-y-5">
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label class="label">Full Name *</label>
                     <input v-model="form.name" type="text" placeholder="Abebe Girma" class="input-field" required />
@@ -94,8 +95,9 @@ const PhoneIcon = defineComponent({ render: () => h('svg', { fill: 'none', strok
 const MapIcon = defineComponent({ render: () => h('svg', { fill: 'none', stroke: 'currentColor', viewBox: '0 0 24 24' }, [h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z' }), h('path', { 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'stroke-width': '2', d: 'M15 11a3 3 0 11-6 0 3 3 0 016 0z' })]) });
 
 const contactItems = computed(() => [
-  { label: 'Email', value: aboutData.value?.contactEmail || 'hello@simplesoftware.com', icon: EmailIcon },
-  { label: 'Phone', value: aboutData.value?.contactPhone || '+251 91 000 0000', icon: PhoneIcon },
+  { label: 'Email', value: aboutData.value?.contactEmail || 'contact@simplesoftwares.dev', href: `mailto:${aboutData.value?.contactEmail || 'contact@simplesoftwares.dev'}`, icon: EmailIcon },
+  { label: 'Phone', value: '0940876767', href: 'tel:0940876767', icon: PhoneIcon },
+  { label: 'Alternative phone', value: '0952096767', href: 'tel:0952096767', icon: PhoneIcon },
   { label: 'Location', value: aboutData.value?.location || 'Gondar, Ethiopia', icon: MapIcon },
 ]);
 

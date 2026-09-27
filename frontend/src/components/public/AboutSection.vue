@@ -50,16 +50,6 @@
               <p class="text-muted leading-relaxed" v-else>To be the most trusted technology partner for businesses across all industries.</p>
             </div>
           </div>
-          <!-- Floating badge -->
-          <div class="absolute -bottom-4 -left-4 card px-5 py-3 flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-gold/20 flex items-center justify-center">
-              <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </div>
-            <div>
-              <p class="text-white text-sm font-medium">Ongoing Maintenance</p>
-              <p class="text-muted text-xs">We stay with you after launch</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

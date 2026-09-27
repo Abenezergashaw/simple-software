@@ -36,11 +36,11 @@
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Email</label>
-            <input v-model="form.contactEmail" type="email" class="input-field" placeholder="hello@simplesoftware.com" />
+            <input v-model="form.contactEmail" type="email" class="input-field" placeholder="contact@simplesoftwares.dev" />
           </div>
           <div>
             <label class="label">Phone</label>
-            <input v-model="form.contactPhone" type="tel" class="input-field" placeholder="+251 91 000 0000" />
+            <input v-model="form.contactPhone" type="tel" class="input-field" placeholder="0940876767 / 0952096767" />
           </div>
           <div class="col-span-2">
             <label class="label">Location</label>
