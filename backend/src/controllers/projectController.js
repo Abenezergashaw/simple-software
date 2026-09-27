@@ -3,7 +3,7 @@ const path = require('path');
 const fs = require('fs');
 
 const projectSelect = {
-  id: true, title: true, shortDesc: true, fullDesc: true, category: true,
+  id: true, title: true, shortDesc: true, fullDesc: true, category: true, categories: true,
   clientName: true, liveUrl: true, thumbnailUrl: true, status: true,
   completionPercent: true, startDate: true, endDate: true, isPublic: true,
   createdAt: true, updatedAt: true,
@@ -14,7 +14,7 @@ const projectSelect = {
 const getPublicProjects = async (req, res) => {
   const { category } = req.query;
   const where = { isPublic: true };
-  if (category && category !== 'ALL') where.category = category;
+  if (category && category !== 'ALL') where.OR = [{ category }, { categories: { has: category } }];
   const projects = await prisma.project.findMany({ where, select: projectSelect, orderBy: { createdAt: 'desc' } });
   res.json(projects);
 };
@@ -28,7 +28,7 @@ const getPublicProject = async (req, res) => {
 const getAllProjects = async (req, res) => {
   const { category, status, search } = req.query;
   const where = {};
-  if (category && category !== 'ALL') where.category = category;
+  if (category && category !== 'ALL') where.OR = [{ category }, { categories: { has: category } }];
   if (status && status !== 'ALL') where.status = status;
   if (search) where.title = { contains: search, mode: 'insensitive' };
   const projects = await prisma.project.findMany({
@@ -47,12 +47,23 @@ const getProject = async (req, res) => {
   res.json(project);
 };
 
+const parseCategories = (value, fallback) => {
+  try {
+    const parsed = Array.isArray(value) ? value : JSON.parse(value || '[]');
+    const valid = [...new Set(parsed.filter((item) => ['WEB', 'MOBILE', 'DESKTOP'].includes(item)))];
+    return valid.length ? valid : [fallback || 'WEB'];
+  } catch { return [fallback || 'WEB']; }
+};
+
 const createProject = async (req, res) => {
   const { title, shortDesc, fullDesc, category, clientName, liveUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
-  const thumbnailUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const categories = parseCategories(req.body.categories, category);
+  const thumbnail = req.files?.thumbnail?.[0];
+  const gallery = req.files?.images || [];
+  const thumbnailUrl = thumbnail ? `/uploads/${thumbnail.filename}` : null;
   const project = await prisma.project.create({
     data: {
-      title, shortDesc, fullDesc, category, clientName,
+      title, shortDesc, fullDesc, category: categories[0], categories, clientName,
       liveUrl: liveUrl || null, thumbnailUrl,
       status: status || 'PLANNING',
       completionPercent: parseInt(completionPercent) || 0,
@@ -60,6 +71,7 @@ const createProject = async (req, res) => {
       endDate: endDate ? new Date(endDate) : null,
       isPublic: isPublic === 'true' || isPublic === true,
       finance: { create: {} },
+      images: { create: gallery.map((file) => ({ imageUrl: `/uploads/${file.filename}`, caption: '' })) },
     },
     include: { finance: true },
   });
@@ -68,16 +80,20 @@ const createProject = async (req, res) => {
 
 const updateProject = async (req, res) => {
   const { title, shortDesc, fullDesc, category, clientName, liveUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
+  const categories = parseCategories(req.body.categories, category);
   const data = {
-    title, shortDesc, fullDesc, category, clientName,
+    title, shortDesc, fullDesc, category: categories[0], categories, clientName,
     liveUrl: liveUrl || null, status,
     completionPercent: parseInt(completionPercent) || 0,
     startDate: startDate ? new Date(startDate) : null,
     endDate: endDate ? new Date(endDate) : null,
     isPublic: isPublic === 'true' || isPublic === true,
   };
-  if (req.file) data.thumbnailUrl = `/uploads/${req.file.filename}`;
-  const project = await prisma.project.update({ where: { id: req.params.id }, data });
+  const thumbnail = req.files?.thumbnail?.[0];
+  const gallery = req.files?.images || [];
+  if (thumbnail) data.thumbnailUrl = `/uploads/${thumbnail.filename}`;
+  if (gallery.length) data.images = { create: gallery.map((file) => ({ imageUrl: `/uploads/${file.filename}`, caption: '' })) };
+  const project = await prisma.project.update({ where: { id: req.params.id }, data, include: { images: true } });
   res.json(project);
 };
 

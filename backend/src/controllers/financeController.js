@@ -3,7 +3,7 @@ const prisma = require('../prisma');
 const getReports = async (req, res) => {
   const { from, to, category, paymentStatus } = req.query;
   const where = {};
-  if (category && category !== 'ALL') where.project = { category };
+  if (category && category !== 'ALL') where.project = { OR: [{ category }, { categories: { has: category } }] };
   if (paymentStatus && paymentStatus !== 'ALL') where.paymentStatus = paymentStatus;
   if (from || to) {
     where.project = { ...where.project, createdAt: {} };
@@ -12,7 +12,7 @@ const getReports = async (req, res) => {
   }
   const finances = await prisma.projectFinance.findMany({
     where,
-    include: { project: { select: { id: true, title: true, clientName: true, category: true, status: true, createdAt: true } } },
+    include: { project: { select: { id: true, title: true, clientName: true, category: true, categories: true, status: true, createdAt: true } } },
     orderBy: { project: { createdAt: 'desc' } },
   });
   res.json(finances);

@@ -53,14 +53,14 @@
               <div class="flex items-center gap-3">
                 <div class="w-9 h-9 rounded-lg overflow-hidden bg-navy-medium flex-shrink-0">
                   <img v-if="p.thumbnailUrl" :src="p.thumbnailUrl" class="w-full h-full object-cover" :alt="p.title" />
-                  <div v-else class="w-full h-full flex items-center justify-center text-gold/40 text-xs font-bold">{{ p.category[0] }}</div>
+                  <div v-else class="w-full h-full flex items-center justify-center text-gold/40 text-xs font-bold">{{ (p.categories?.[0] || p.category)[0] }}</div>
                 </div>
                 <span class="text-white font-medium truncate max-w-[180px]">{{ p.title }}</span>
               </div>
             </td>
             <td class="px-5 py-4 text-muted hidden md:table-cell">{{ p.clientName }}</td>
             <td class="px-5 py-4 hidden lg:table-cell">
-              <span :class="['badge', categoryBadge(p.category)]">{{ p.category }}</span>
+              <div class="flex flex-wrap gap-1"><span v-for="platform in projectCategories(p)" :key="platform" :class="['badge', categoryBadge(platform)]">{{ formatPlatform(platform) }}</span></div>
             </td>
             <td class="px-5 py-4 hidden lg:table-cell">
               <span :class="['badge', statusBadge(p.status)]">{{ formatStatus(p.status) }}</span>
@@ -112,13 +112,14 @@
                   <label class="label">Project Title *</label>
                   <input v-model="form.title" class="input-field" required placeholder="SmartInventory Pro" />
                 </div>
-                <div>
-                  <label class="label">Category *</label>
-                  <select v-model="form.category" class="select-field" required>
-                    <option value="WEB">Web Application</option>
-                    <option value="MOBILE">Mobile App</option>
-                    <option value="DESKTOP">Desktop Software</option>
-                  </select>
+                <div class="sm:col-span-2">
+                  <label class="label">Platforms * <span class="text-muted font-normal">(select all that apply)</span></label>
+                  <div class="grid grid-cols-3 gap-2">
+                    <label v-for="platform in platformOptions" :key="platform.value" class="flex items-center gap-2 p-3 rounded-xl border border-white/10 bg-navy/50 cursor-pointer hover:border-gold/40 transition-colors">
+                      <input v-model="form.categories" type="checkbox" :value="platform.value" class="accent-gold w-4 h-4" />
+                      <span class="text-sm text-slate-200">{{ platform.label }}</span>
+                    </label>
+                  </div>
                 </div>
                 <div>
                   <label class="label">Client Name *</label>
@@ -161,6 +162,11 @@
                   <label class="label">Thumbnail Image</label>
                   <input type="file" accept="image/*" @change="onThumb" class="input-field py-2 cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm" />
                 </div>
+                <div class="col-span-2">
+                  <label class="label">Project Gallery <span class="text-muted font-normal">(up to 10 images)</span></label>
+                  <input type="file" accept="image/*" multiple @change="onGallery" class="input-field py-2 cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm" />
+                  <p v-if="galleryFiles.length" class="text-xs text-gold mt-2">{{ galleryFiles.length }} image{{ galleryFiles.length === 1 ? '' : 's' }} selected</p>
+                </div>
                 <div class="col-span-2 flex items-center gap-3">
                   <button type="button" @click="form.isPublic = !form.isPublic" :class="['w-10 h-5 rounded-full transition-all relative', form.isPublic ? 'bg-gold' : 'bg-navy-medium']">
                     <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all', form.isPublic ? 'right-0.5' : 'left-0.5']"></span>
@@ -193,11 +199,15 @@ const search = ref('');
 const filterCategory = ref('ALL');
 const filterStatus = ref('ALL');
 const thumbFile = ref(null);
+const galleryFiles = ref([]);
 
-const emptyForm = () => ({ title: '', shortDesc: '', fullDesc: '', category: 'WEB', clientName: '', liveUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
+const platformOptions = [{ value: 'WEB', label: 'Web' }, { value: 'MOBILE', label: 'Mobile' }, { value: 'DESKTOP', label: 'Desktop' }];
+const emptyForm = () => ({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
 const form = ref(emptyForm());
 
 const categoryBadge = (c) => ({ WEB: 'bg-blue-500/20 text-blue-300', MOBILE: 'bg-purple-500/20 text-purple-300', DESKTOP: 'bg-emerald-500/20 text-emerald-300' }[c] || 'bg-gray-500/20 text-gray-300');
+const projectCategories = (p) => p.categories?.length ? p.categories : [p.category];
+const formatPlatform = (p) => ({ WEB: 'Web', MOBILE: 'Mobile', DESKTOP: 'Desktop' }[p] || p);
 const statusBadge = (s) => ({ PLANNING: 'bg-yellow-500/20 text-yellow-300', IN_PROGRESS: 'bg-blue-500/20 text-blue-300', COMPLETED: 'bg-emerald-500/20 text-emerald-300', ON_HOLD: 'bg-red-500/20 text-red-300' }[s]);
 const formatStatus = (s) => ({ PLANNING: 'Planning', IN_PROGRESS: 'In Progress', COMPLETED: 'Completed', ON_HOLD: 'On Hold' }[s] || s);
 
@@ -215,21 +225,25 @@ const fetchProjects = async () => {
 const openForm = (project = null) => {
   editProject.value = project;
   if (project) {
-    form.value = { title: project.title, shortDesc: project.shortDesc, fullDesc: project.fullDesc, category: project.category, clientName: project.clientName, liveUrl: project.liveUrl || '', status: project.status, completionPercent: project.completionPercent, startDate: project.startDate ? project.startDate.split('T')[0] : '', endDate: project.endDate ? project.endDate.split('T')[0] : '', isPublic: project.isPublic };
+    form.value = { title: project.title, shortDesc: project.shortDesc, fullDesc: project.fullDesc, categories: projectCategories(project), clientName: project.clientName, liveUrl: project.liveUrl || '', status: project.status, completionPercent: project.completionPercent, startDate: project.startDate ? project.startDate.split('T')[0] : '', endDate: project.endDate ? project.endDate.split('T')[0] : '', isPublic: project.isPublic };
   } else {
     form.value = emptyForm();
   }
   thumbFile.value = null;
+  galleryFiles.value = [];
   showForm.value = true;
 };
 
 const onThumb = (e) => { thumbFile.value = e.target.files[0]; };
+const onGallery = (e) => { galleryFiles.value = Array.from(e.target.files).slice(0, 10); };
 
 const saveProject = async () => {
   saving.value = true;
+  if (!form.value.categories.length) { alert('Select at least one platform'); saving.value = false; return; }
   const fd = new FormData();
-  Object.entries(form.value).forEach(([k, v]) => fd.append(k, v));
+  Object.entries(form.value).forEach(([k, v]) => fd.append(k, k === 'categories' ? JSON.stringify(v) : v));
   if (thumbFile.value) fd.append('thumbnail', thumbFile.value);
+  galleryFiles.value.forEach((file) => fd.append('images', file));
   try {
     if (editProject.value) {
       await api.put(`/projects/${editProject.value.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
@@ -246,6 +260,7 @@ const togglePublic = async (p) => {
   p.isPublic = !p.isPublic;
   const fd = new FormData();
   Object.entries(p).forEach(([k, v]) => { if (typeof v !== 'object') fd.append(k, v); });
+  fd.append('categories', JSON.stringify(projectCategories(p)));
   await api.put(`/projects/${p.id}`, fd, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 

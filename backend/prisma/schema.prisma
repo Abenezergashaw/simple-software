@@ -54,6 +54,7 @@ model Project {
   shortDesc         String
   fullDesc          String        @db.Text
   category          Category
+  categories        Category[]    @default([])
   clientName        String
   liveUrl           String?
   thumbnailUrl      String?

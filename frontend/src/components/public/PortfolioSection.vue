@@ -43,14 +43,14 @@
         >
           <!-- Thumbnail -->
           <div class="relative overflow-hidden h-48 bg-navy-medium">
-            <img v-if="project.thumbnailUrl" :src="project.thumbnailUrl" :alt="project.title" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+            <img v-if="project.thumbnailUrl" :src="project.thumbnailUrl" :alt="project.title" class="w-full h-full object-contain p-2 transition-transform duration-500 group-hover:scale-[1.03]" />
             <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy-medium to-navy">
               <svg class="w-12 h-12 text-gold/30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 9h18M9 21V9"/></svg>
             </div>
             <div class="absolute inset-0 bg-gradient-to-t from-navy-light/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end justify-center pb-6">
               <span class="text-white text-sm font-medium flex items-center gap-2">View Details <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></span>
             </div>
-            <span :class="['badge absolute top-3 left-3', categoryBadge(project.category)]">{{ project.category }}</span>
+            <div class="absolute top-3 left-3 flex flex-wrap gap-1"><span v-for="platform in projectCategories(project)" :key="platform" :class="['badge', categoryBadge(platform)]">{{ formatPlatform(platform) }}</span></div>
           </div>
           <!-- Content -->
           <div class="p-5">
@@ -78,14 +78,16 @@
           <div class="relative bg-navy-light border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
             <!-- Modal Header Image -->
             <div class="relative h-56 bg-navy-medium overflow-hidden rounded-t-2xl">
-              <img v-if="selectedProject.thumbnailUrl" :src="selectedProject.thumbnailUrl" :alt="selectedProject.title" class="w-full h-full object-cover" />
+              <img v-if="carouselImages.length" :src="carouselImages[carouselIndex]" :alt="selectedProject.title" class="w-full h-full object-contain p-3" />
               <div v-else class="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy-medium to-navy">
                 <svg class="w-16 h-16 text-gold/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/></svg>
               </div>
               <button @click="selectedProject = null" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/80 transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
-              <span :class="['badge absolute bottom-4 left-4', categoryBadge(selectedProject.category)]">{{ selectedProject.category }}</span>
+              <button v-if="carouselImages.length > 1" @click="previousImage" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-gold hover:text-navy">‹</button>
+              <button v-if="carouselImages.length > 1" @click="nextImage" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-gold hover:text-navy">›</button>
+              <div v-if="carouselImages.length > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5"><button v-for="(_, index) in carouselImages" :key="index" @click="carouselIndex = index" :class="['w-2 h-2 rounded-full', index === carouselIndex ? 'bg-gold' : 'bg-white/40']"></button></div>
             </div>
             <!-- Modal Body -->
             <div class="p-6">
@@ -107,13 +109,14 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import api from '@/api';
 
 const projects = ref([]);
 const loading = ref(true);
 const activeCategory = ref('ALL');
 const selectedProject = ref(null);
+const carouselIndex = ref(0);
 
 const tabs = [
   { label: 'All Projects', value: 'ALL' },
@@ -127,6 +130,12 @@ const categoryBadge = (cat) => ({
   MOBILE: 'bg-purple-500/20 text-purple-300',
   DESKTOP: 'bg-emerald-500/20 text-emerald-300',
 }[cat] || 'bg-gray-500/20 text-gray-300');
+const projectCategories = (project) => project.categories?.length ? project.categories : [project.category];
+const formatPlatform = (platform) => ({ WEB: 'Web', MOBILE: 'Mobile', DESKTOP: 'Desktop' }[platform] || platform);
+const galleryFor = (project) => [...new Set([project?.thumbnailUrl, ...(project?.images || []).map((image) => image.imageUrl)].filter(Boolean))];
+const carouselImages = computed(() => galleryFor(selectedProject.value));
+const nextImage = () => { carouselIndex.value = (carouselIndex.value + 1) % carouselImages.value.length; };
+const previousImage = () => { carouselIndex.value = (carouselIndex.value - 1 + carouselImages.value.length) % carouselImages.value.length; };
 
 const setCategory = async (cat) => {
   activeCategory.value = cat;
@@ -143,7 +152,7 @@ const fetchProjects = async (cat) => {
   loading.value = false;
 };
 
-const openModal = (project) => { selectedProject.value = project; };
+const openModal = (project) => { selectedProject.value = project; carouselIndex.value = 0; };
 
 onMounted(() => fetchProjects('ALL'));
 </script>

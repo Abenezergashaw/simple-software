@@ -24,11 +24,11 @@
         <div v-else class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           <div v-for="(project, i) in projects" :key="project.id" class="card overflow-hidden cursor-pointer group" @click="openModal(project)" :data-aos="'fade-up'" :data-aos-delay="i * 60">
             <div class="relative h-48 bg-navy-medium overflow-hidden">
-              <img v-if="project.thumbnailUrl" :src="project.thumbnailUrl" :alt="project.title" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"/>
+              <img v-if="project.thumbnailUrl" :src="project.thumbnailUrl" :alt="project.title" class="w-full h-full object-contain p-2 group-hover:scale-[1.03] transition-transform duration-500"/>
               <div v-else class="w-full h-full flex items-center justify-center">
                 <svg class="w-12 h-12 text-gold/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/></svg>
               </div>
-              <span :class="['badge absolute top-3 left-3', categoryBadge(project.category)]">{{ project.category }}</span>
+              <div class="absolute top-3 left-3 flex flex-wrap gap-1"><span v-for="platform in projectCategories(project)" :key="platform" :class="['badge', categoryBadge(platform)]">{{ formatPlatform(platform) }}</span></div>
             </div>
             <div class="p-5">
               <p class="text-muted text-xs mb-1">{{ project.clientName }}</p>
@@ -50,12 +50,14 @@
           <div class="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
           <div class="relative bg-navy-light border border-white/10 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div class="relative h-56 bg-navy-medium overflow-hidden rounded-t-2xl">
-              <img v-if="selected.thumbnailUrl" :src="selected.thumbnailUrl" :alt="selected.title" class="w-full h-full object-cover"/>
+              <img v-if="carouselImages.length" :src="carouselImages[carouselIndex]" :alt="selected.title" class="w-full h-full object-contain p-3"/>
               <div v-else class="w-full h-full flex items-center justify-center"><svg class="w-16 h-16 text-gold/20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" stroke-width="1.5"/></svg></div>
               <button @click="selected = null" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/80">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
-              <span :class="['badge absolute bottom-4 left-4', categoryBadge(selected.category)]">{{ selected.category }}</span>
+              <button v-if="carouselImages.length > 1" @click="previousImage" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-gold hover:text-navy">‹</button>
+              <button v-if="carouselImages.length > 1" @click="nextImage" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-gold hover:text-navy">›</button>
+              <div v-if="carouselImages.length > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5"><button v-for="(_, index) in carouselImages" :key="index" @click="carouselIndex = index" :class="['w-2 h-2 rounded-full', index === carouselIndex ? 'bg-gold' : 'bg-white/40']"></button></div>
             </div>
             <div class="p-6">
               <p class="text-gold text-sm font-medium mb-1">{{ selected.clientName }}</p>
@@ -71,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import TheNavbar from '@/components/public/TheNavbar.vue';
 import TheFooter from '@/components/public/TheFooter.vue';
 import api from '@/api';
@@ -80,6 +82,7 @@ const projects = ref([]);
 const loading = ref(true);
 const activeCategory = ref('ALL');
 const selected = ref(null);
+const carouselIndex = ref(0);
 
 const tabs = [
   { label: 'All', value: 'ALL' },
@@ -89,9 +92,14 @@ const tabs = [
 ];
 
 const categoryBadge = (cat) => ({ WEB: 'bg-blue-500/20 text-blue-300', MOBILE: 'bg-purple-500/20 text-purple-300', DESKTOP: 'bg-emerald-500/20 text-emerald-300' }[cat] || 'bg-gray-500/20 text-gray-300');
+const projectCategories = (project) => project.categories?.length ? project.categories : [project.category];
+const formatPlatform = (platform) => ({ WEB: 'Web', MOBILE: 'Mobile', DESKTOP: 'Desktop' }[platform] || platform);
+const carouselImages = computed(() => [...new Set([selected.value?.thumbnailUrl, ...(selected.value?.images || []).map((image) => image.imageUrl)].filter(Boolean))]);
+const nextImage = () => { carouselIndex.value = (carouselIndex.value + 1) % carouselImages.value.length; };
+const previousImage = () => { carouselIndex.value = (carouselIndex.value - 1 + carouselImages.value.length) % carouselImages.value.length; };
 
 const setCategory = (cat) => { activeCategory.value = cat; fetchProjects(cat); };
-const openModal = (p) => { selected.value = p; };
+const openModal = (p) => { selected.value = p; carouselIndex.value = 0; };
 
 const fetchProjects = async (cat) => {
   loading.value = true;
