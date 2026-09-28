@@ -55,9 +55,11 @@
               <button @click="selected = null" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-white hover:bg-black/80">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
               </button>
-              <button v-if="carouselImages.length > 1" @click="previousImage" class="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-gold hover:text-navy">‹</button>
-              <button v-if="carouselImages.length > 1" @click="nextImage" class="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-gold hover:text-navy">›</button>
-              <div v-if="carouselImages.length > 1" class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5"><button v-for="(_, index) in carouselImages" :key="index" @click="carouselIndex = index" :class="['w-2 h-2 rounded-full', index === carouselIndex ? 'bg-gold' : 'bg-white/40']"></button></div>
+            </div>
+            <div v-if="carouselImages.length > 1" class="h-14 px-4 flex items-center justify-between gap-4 border-b border-white/10 bg-navy">
+              <button @click="previousImage" class="w-9 h-9 rounded-full border border-white/10 text-white hover:bg-gold hover:text-navy hover:border-gold transition-colors" aria-label="Previous image">‹</button>
+              <div class="flex items-center gap-1.5"><button v-for="(_, index) in carouselImages" :key="index" @click="carouselIndex = index" :aria-label="`View image ${index + 1}`" :class="['h-2 rounded-full transition-all', index === carouselIndex ? 'w-6 bg-gold' : 'w-2 bg-white/30 hover:bg-white/60']"></button></div>
+              <button @click="nextImage" class="w-9 h-9 rounded-full border border-white/10 text-white hover:bg-gold hover:text-navy hover:border-gold transition-colors" aria-label="Next image">›</button>
             </div>
             <div class="p-6">
               <p class="text-gold text-sm font-medium mb-1">{{ selected.clientName }}</p>
