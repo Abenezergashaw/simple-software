@@ -5,7 +5,8 @@ const { processImage, processImages } = require('../utils/imageProcessor');
 
 const projectSelect = {
   id: true, title: true, shortDesc: true, fullDesc: true, category: true, categories: true,
-  clientName: true, liveUrl: true, androidUrl: true, iosUrl: true, thumbnailUrl: true, status: true,
+  clientName: true, liveUrl: true, androidUrl: true, iosUrl: true,
+  liveLabel: true, androidLabel: true, iosLabel: true, thumbnailUrl: true, status: true,
   completionPercent: true, startDate: true, endDate: true, isPublic: true,
   createdAt: true, updatedAt: true,
   images: true,
@@ -64,8 +65,19 @@ const cleanUrl = (value) => {
   return /^https?:\/\/\S+$/i.test(url) ? url : null;
 };
 
+// Optional custom button text; empty (or the literal "null" FormData sends) means use the default wording.
+const cleanLabel = (value) => {
+  const label = typeof value === 'string' ? value.trim().slice(0, 40) : '';
+  return label && label !== 'null' ? label : null;
+};
+
+const linkFields = (body) => ({
+  liveUrl: cleanUrl(body.liveUrl), androidUrl: cleanUrl(body.androidUrl), iosUrl: cleanUrl(body.iosUrl),
+  liveLabel: cleanLabel(body.liveLabel), androidLabel: cleanLabel(body.androidLabel), iosLabel: cleanLabel(body.iosLabel),
+});
+
 const createProject = async (req, res) => {
-  const { title, shortDesc, fullDesc, category, clientName, liveUrl, androidUrl, iosUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
+  const { title, shortDesc, fullDesc, category, clientName, status, completionPercent, startDate, endDate, isPublic } = req.body;
   const categories = parseCategories(req.body.categories, category);
   const thumbnail = req.files?.thumbnail?.[0];
   const processedThumbnail = thumbnail ? await processImage(thumbnail) : null;
@@ -74,7 +86,7 @@ const createProject = async (req, res) => {
   const project = await prisma.project.create({
     data: {
       title, shortDesc, fullDesc, category: categories[0], categories, clientName,
-      liveUrl: cleanUrl(liveUrl), androidUrl: cleanUrl(androidUrl), iosUrl: cleanUrl(iosUrl), thumbnailUrl,
+      ...linkFields(req.body), thumbnailUrl,
       status: status || 'PLANNING',
       completionPercent: parseInt(completionPercent) || 0,
       startDate: startDate ? new Date(startDate) : null,
@@ -89,11 +101,11 @@ const createProject = async (req, res) => {
 };
 
 const updateProject = async (req, res) => {
-  const { title, shortDesc, fullDesc, category, clientName, liveUrl, androidUrl, iosUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
+  const { title, shortDesc, fullDesc, category, clientName, status, completionPercent, startDate, endDate, isPublic } = req.body;
   const categories = parseCategories(req.body.categories, category);
   const data = {
     title, shortDesc, fullDesc, category: categories[0], categories, clientName,
-    liveUrl: cleanUrl(liveUrl), androidUrl: cleanUrl(androidUrl), iosUrl: cleanUrl(iosUrl), status,
+    ...linkFields(req.body), status,
     completionPercent: parseInt(completionPercent) || 0,
     startDate: startDate ? new Date(startDate) : null,
     endDate: endDate ? new Date(endDate) : null,

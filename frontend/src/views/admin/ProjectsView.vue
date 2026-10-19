@@ -88,7 +88,7 @@
             </div>
             <form @submit.prevent="saveProject" class="p-6 space-y-5">
               <div class="grid sm:grid-cols-2 gap-4">
-                <div class="col-span-2">
+                <div class="sm:col-span-2">
                   <label class="label">Project Title *</label>
                   <input v-model="form.title" class="input-field" required placeholder="SmartInventory Pro" />
                 </div>
@@ -105,11 +105,11 @@
                   <label class="label">Client Name *</label>
                   <input v-model="form.clientName" class="input-field" required placeholder="Acme Ltd" />
                 </div>
-                <div class="col-span-2">
+                <div class="sm:col-span-2">
                   <label class="label">Short Description * (shown on portfolio card)</label>
                   <input v-model="form.shortDesc" class="input-field" required placeholder="Brief one-line description..." />
                 </div>
-                <div class="col-span-2">
+                <div class="sm:col-span-2">
                   <label class="label">Full Description * (shown in project modal)</label>
                   <textarea v-model="form.fullDesc" rows="4" class="input-field resize-none" required placeholder="Detailed description of the project, the problem it solved, and the impact..."></textarea>
                 </div>
@@ -134,31 +134,29 @@
                   <label class="label">End Date</label>
                   <input v-model="form.endDate" type="date" class="input-field" />
                 </div>
-                <div class="col-span-2 space-y-3">
+                <div class="sm:col-span-2 space-y-3">
                   <p class="label mb-0">Project Links <span class="text-muted font-normal">(optional — customers see a button for each one you fill in)</span></p>
-                  <div>
-                    <label class="label">Website</label>
-                    <input v-model="form.liveUrl" type="url" class="input-field" placeholder="https://..." />
-                  </div>
-                  <div>
-                    <label class="label">Android (Google Play)</label>
-                    <input v-model="form.androidUrl" type="url" class="input-field" placeholder="https://play.google.com/store/apps/details?id=..." />
-                  </div>
-                  <div>
-                    <label class="label">iOS (App Store)</label>
-                    <input v-model="form.iosUrl" type="url" class="input-field" placeholder="https://apps.apple.com/app/..." />
+                  <div v-for="link in linkOptions" :key="link.url" class="grid sm:grid-cols-[1fr_200px] gap-2">
+                    <div>
+                      <label class="label">{{ link.label }}</label>
+                      <input v-model="form[link.url]" type="url" class="input-field" :placeholder="link.placeholder" />
+                    </div>
+                    <div>
+                      <label class="label">Button text</label>
+                      <input v-model="form[link.text]" maxlength="40" class="input-field" :placeholder="link.defaultText" />
+                    </div>
                   </div>
                 </div>
-                <div class="col-span-2">
+                <div class="sm:col-span-2">
                   <label class="label">Thumbnail Image</label>
                   <input type="file" accept="image/*" @change="onThumb" class="input-field py-2 cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm" />
                 </div>
-                <div class="col-span-2">
+                <div class="sm:col-span-2">
                   <label class="label">Project Gallery <span class="text-muted font-normal">(up to 10 images)</span></label>
                   <input type="file" accept="image/*" multiple @change="onGallery" class="input-field py-2 cursor-pointer file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm" />
                   <p v-if="galleryFiles.length" class="text-xs text-gold mt-2">{{ galleryFiles.length }} image{{ galleryFiles.length === 1 ? '' : 's' }} selected</p>
                 </div>
-                <div class="col-span-2 flex items-center gap-3">
+                <div class="sm:col-span-2 flex items-center gap-3">
                   <button type="button" @click="form.isPublic = !form.isPublic" :class="['w-10 h-5 rounded-full transition-all relative', form.isPublic ? 'bg-gold' : 'bg-navy-medium']">
                     <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all', form.isPublic ? 'right-0.5' : 'left-0.5']"></span>
                   </button>
@@ -193,7 +191,12 @@ const thumbFile = ref(null);
 const galleryFiles = ref([]);
 
 const platformOptions = [{ value: 'WEB', label: 'Web' }, { value: 'MOBILE', label: 'Mobile' }, { value: 'DESKTOP', label: 'Desktop' }];
-const emptyForm = () => ({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', androidUrl: '', iosUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
+const linkOptions = [
+  { url: 'liveUrl', text: 'liveLabel', label: 'Website', placeholder: 'https://...', defaultText: 'Visit Website' },
+  { url: 'androidUrl', text: 'androidLabel', label: 'Android (Google Play)', placeholder: 'https://play.google.com/store/apps/details?id=...', defaultText: 'Get it on Google Play' },
+  { url: 'iosUrl', text: 'iosLabel', label: 'iOS (App Store)', placeholder: 'https://apps.apple.com/app/...', defaultText: 'Download on the App Store' },
+];
+const emptyForm = () => ({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', androidUrl: '', iosUrl: '', liveLabel: '', androidLabel: '', iosLabel: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
 const form = ref(emptyForm());
 
 const categoryBadge = (c) => ({ WEB: 'bg-blue-500/20 text-blue-300', MOBILE: 'bg-purple-500/20 text-purple-300', DESKTOP: 'bg-emerald-500/20 text-emerald-300' }[c] || 'bg-gray-500/20 text-gray-300');
@@ -216,7 +219,7 @@ const fetchProjects = async () => {
 const openForm = (project = null) => {
   editProject.value = project;
   if (project) {
-    form.value = { title: project.title, shortDesc: project.shortDesc, fullDesc: project.fullDesc, categories: projectCategories(project), clientName: project.clientName, liveUrl: project.liveUrl || '', androidUrl: project.androidUrl || '', iosUrl: project.iosUrl || '', status: project.status, completionPercent: project.completionPercent, startDate: project.startDate ? project.startDate.split('T')[0] : '', endDate: project.endDate ? project.endDate.split('T')[0] : '', isPublic: project.isPublic };
+    form.value = { title: project.title, shortDesc: project.shortDesc, fullDesc: project.fullDesc, categories: projectCategories(project), clientName: project.clientName, liveUrl: project.liveUrl || '', androidUrl: project.androidUrl || '', iosUrl: project.iosUrl || '', liveLabel: project.liveLabel || '', androidLabel: project.androidLabel || '', iosLabel: project.iosLabel || '', status: project.status, completionPercent: project.completionPercent, startDate: project.startDate ? project.startDate.split('T')[0] : '', endDate: project.endDate ? project.endDate.split('T')[0] : '', isPublic: project.isPublic };
   } else {
     form.value = emptyForm();
   }

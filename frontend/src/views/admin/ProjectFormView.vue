@@ -19,12 +19,13 @@
           <div><label class="label">Start Date</label><input v-model="form.startDate" type="date" class="input-field" /></div>
           <div><label class="label">End Date</label><input v-model="form.endDate" type="date" class="input-field" /></div>
           <div class="sm:col-span-2"><p class="label">Project Links <span class="text-muted font-normal">(optional — customers see a button for each one you fill in)</span></p></div>
-          <div class="sm:col-span-2"><label class="label">Website</label><input v-model="form.liveUrl" type="url" class="input-field" placeholder="https://..." /></div>
-          <div><label class="label">Android (Google Play)</label><input v-model="form.androidUrl" type="url" class="input-field" placeholder="https://play.google.com/store/apps/details?id=..." /></div>
-          <div><label class="label">iOS (App Store)</label><input v-model="form.iosUrl" type="url" class="input-field" placeholder="https://apps.apple.com/app/..." /></div>
-          <div class="col-span-2"><label class="label">Thumbnail</label><input type="file" accept="image/*" @change="onThumb" class="input-field py-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm cursor-pointer" /></div>
-          <div class="col-span-2"><label class="label">Project Gallery (up to 10 images)</label><input type="file" accept="image/*" multiple @change="onGallery" class="input-field py-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm cursor-pointer" /></div>
-          <div class="col-span-2 flex items-center gap-3">
+          <template v-for="link in linkOptions" :key="link.url">
+            <div><label class="label">{{ link.label }}</label><input v-model="form[link.url]" type="url" class="input-field" :placeholder="link.placeholder" /></div>
+            <div><label class="label">Button text</label><input v-model="form[link.text]" maxlength="40" class="input-field" :placeholder="link.defaultText" /></div>
+          </template>
+          <div class="sm:col-span-2"><label class="label">Thumbnail</label><input type="file" accept="image/*" @change="onThumb" class="input-field py-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm cursor-pointer" /></div>
+          <div class="sm:col-span-2"><label class="label">Project Gallery (up to 10 images)</label><input type="file" accept="image/*" multiple @change="onGallery" class="input-field py-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm cursor-pointer" /></div>
+          <div class="sm:col-span-2 flex items-center gap-3">
             <button type="button" @click="form.isPublic = !form.isPublic" :class="['w-10 h-5 rounded-full transition-all relative', form.isPublic ? 'bg-gold' : 'bg-navy-medium']"><span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all', form.isPublic ? 'right-0.5' : 'left-0.5']"></span></button>
             <span class="text-sm text-slate-300">Show on public portfolio</span>
           </div>
@@ -45,7 +46,12 @@ import api from '@/api';
 
 const router = useRouter();
 const platformOptions = [{ value: 'WEB', label: 'Web' }, { value: 'MOBILE', label: 'Mobile' }, { value: 'DESKTOP', label: 'Desktop' }];
-const form = ref({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', androidUrl: '', iosUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
+const linkOptions = [
+  { url: 'liveUrl', text: 'liveLabel', label: 'Website', placeholder: 'https://...', defaultText: 'Visit Website' },
+  { url: 'androidUrl', text: 'androidLabel', label: 'Android (Google Play)', placeholder: 'https://play.google.com/store/apps/details?id=...', defaultText: 'Get it on Google Play' },
+  { url: 'iosUrl', text: 'iosLabel', label: 'iOS (App Store)', placeholder: 'https://apps.apple.com/app/...', defaultText: 'Download on the App Store' },
+];
+const form = ref({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', androidUrl: '', iosUrl: '', liveLabel: '', androidLabel: '', iosLabel: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
 const thumbFile = ref(null);
 const galleryFiles = ref([]);
 const saving = ref(false);
