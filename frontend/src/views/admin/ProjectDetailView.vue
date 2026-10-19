@@ -34,7 +34,9 @@
           <div class="grid sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-white/5 text-sm">
             <div><p class="text-muted mb-1">Start Date</p><p class="text-white">{{ formatDate(project.startDate) }}</p></div>
             <div><p class="text-muted mb-1">End Date</p><p class="text-white">{{ formatDate(project.endDate) }}</p></div>
-            <div><p class="text-muted mb-1">Live URL</p><a v-if="project.liveUrl" :href="project.liveUrl" target="_blank" class="text-gold hover:underline truncate block">{{ project.liveUrl }}</a><span v-else class="text-muted">—</span></div>
+            <div v-for="link in [{ label: 'Website', url: project.liveUrl }, { label: 'Android (Google Play)', url: project.androidUrl }, { label: 'iOS (App Store)', url: project.iosUrl }]" :key="link.label">
+              <p class="text-muted mb-1">{{ link.label }}</p><a v-if="link.url" :href="link.url" target="_blank" rel="noopener" class="text-gold hover:underline truncate block">{{ link.url }}</a><span v-else class="text-muted">—</span>
+            </div>
           </div>
         </div>
         <!-- Progress -->

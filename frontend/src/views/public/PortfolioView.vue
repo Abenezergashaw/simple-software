@@ -65,7 +65,7 @@
               <p class="text-gold text-sm font-medium mb-1">{{ selected.clientName }}</p>
               <h2 class="font-display text-2xl font-semibold text-white mb-4">{{ selected.title }}</h2>
               <p class="text-muted leading-relaxed mb-6">{{ selected.fullDesc }}</p>
-              <a v-if="selected.liveUrl" :href="selected.liveUrl" target="_blank" class="btn-gold text-sm px-5 py-2.5">View Live Project</a>
+              <ProjectLinks :project="selected" />
             </div>
           </div>
         </div>
@@ -78,6 +78,7 @@
 import { ref, computed, onMounted } from 'vue';
 import TheNavbar from '@/components/public/TheNavbar.vue';
 import TheFooter from '@/components/public/TheFooter.vue';
+import ProjectLinks from '@/components/public/ProjectLinks.vue';
 import api from '@/api';
 
 const projects = ref([]);

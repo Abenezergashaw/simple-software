@@ -5,7 +5,7 @@ const { processImage, processImages } = require('../utils/imageProcessor');
 
 const projectSelect = {
   id: true, title: true, shortDesc: true, fullDesc: true, category: true, categories: true,
-  clientName: true, liveUrl: true, thumbnailUrl: true, status: true,
+  clientName: true, liveUrl: true, androidUrl: true, iosUrl: true, thumbnailUrl: true, status: true,
   completionPercent: true, startDate: true, endDate: true, isPublic: true,
   createdAt: true, updatedAt: true,
   images: true,
@@ -58,8 +58,14 @@ const parseCategories = (value, fallback) => {
   return valid.length ? valid : [fallback || 'WEB'];
 };
 
+// Links are rendered as public buttons, so only keep absolute http(s) URLs.
+const cleanUrl = (value) => {
+  const url = typeof value === 'string' ? value.trim() : '';
+  return /^https?:\/\/\S+$/i.test(url) ? url : null;
+};
+
 const createProject = async (req, res) => {
-  const { title, shortDesc, fullDesc, category, clientName, liveUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
+  const { title, shortDesc, fullDesc, category, clientName, liveUrl, androidUrl, iosUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
   const categories = parseCategories(req.body.categories, category);
   const thumbnail = req.files?.thumbnail?.[0];
   const processedThumbnail = thumbnail ? await processImage(thumbnail) : null;
@@ -68,7 +74,7 @@ const createProject = async (req, res) => {
   const project = await prisma.project.create({
     data: {
       title, shortDesc, fullDesc, category: categories[0], categories, clientName,
-      liveUrl: liveUrl || null, thumbnailUrl,
+      liveUrl: cleanUrl(liveUrl), androidUrl: cleanUrl(androidUrl), iosUrl: cleanUrl(iosUrl), thumbnailUrl,
       status: status || 'PLANNING',
       completionPercent: parseInt(completionPercent) || 0,
       startDate: startDate ? new Date(startDate) : null,
@@ -83,11 +89,11 @@ const createProject = async (req, res) => {
 };
 
 const updateProject = async (req, res) => {
-  const { title, shortDesc, fullDesc, category, clientName, liveUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
+  const { title, shortDesc, fullDesc, category, clientName, liveUrl, androidUrl, iosUrl, status, completionPercent, startDate, endDate, isPublic } = req.body;
   const categories = parseCategories(req.body.categories, category);
   const data = {
     title, shortDesc, fullDesc, category: categories[0], categories, clientName,
-    liveUrl: liveUrl || null, status,
+    liveUrl: cleanUrl(liveUrl), androidUrl: cleanUrl(androidUrl), iosUrl: cleanUrl(iosUrl), status,
     completionPercent: parseInt(completionPercent) || 0,
     startDate: startDate ? new Date(startDate) : null,
     endDate: endDate ? new Date(endDate) : null,

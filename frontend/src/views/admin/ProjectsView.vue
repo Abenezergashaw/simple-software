@@ -154,9 +154,20 @@
                   <label class="label">End Date</label>
                   <input v-model="form.endDate" type="date" class="input-field" />
                 </div>
-                <div class="col-span-2">
-                  <label class="label">Live Project URL</label>
-                  <input v-model="form.liveUrl" type="url" class="input-field" placeholder="https://..." />
+                <div class="col-span-2 space-y-3">
+                  <p class="label mb-0">Project Links <span class="text-muted font-normal">(optional — customers see a button for each one you fill in)</span></p>
+                  <div>
+                    <label class="label">Website</label>
+                    <input v-model="form.liveUrl" type="url" class="input-field" placeholder="https://..." />
+                  </div>
+                  <div>
+                    <label class="label">Android (Google Play)</label>
+                    <input v-model="form.androidUrl" type="url" class="input-field" placeholder="https://play.google.com/store/apps/details?id=..." />
+                  </div>
+                  <div>
+                    <label class="label">iOS (App Store)</label>
+                    <input v-model="form.iosUrl" type="url" class="input-field" placeholder="https://apps.apple.com/app/..." />
+                  </div>
                 </div>
                 <div class="col-span-2">
                   <label class="label">Thumbnail Image</label>
@@ -202,7 +213,7 @@ const thumbFile = ref(null);
 const galleryFiles = ref([]);
 
 const platformOptions = [{ value: 'WEB', label: 'Web' }, { value: 'MOBILE', label: 'Mobile' }, { value: 'DESKTOP', label: 'Desktop' }];
-const emptyForm = () => ({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
+const emptyForm = () => ({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', androidUrl: '', iosUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
 const form = ref(emptyForm());
 
 const categoryBadge = (c) => ({ WEB: 'bg-blue-500/20 text-blue-300', MOBILE: 'bg-purple-500/20 text-purple-300', DESKTOP: 'bg-emerald-500/20 text-emerald-300' }[c] || 'bg-gray-500/20 text-gray-300');
@@ -225,7 +236,7 @@ const fetchProjects = async () => {
 const openForm = (project = null) => {
   editProject.value = project;
   if (project) {
-    form.value = { title: project.title, shortDesc: project.shortDesc, fullDesc: project.fullDesc, categories: projectCategories(project), clientName: project.clientName, liveUrl: project.liveUrl || '', status: project.status, completionPercent: project.completionPercent, startDate: project.startDate ? project.startDate.split('T')[0] : '', endDate: project.endDate ? project.endDate.split('T')[0] : '', isPublic: project.isPublic };
+    form.value = { title: project.title, shortDesc: project.shortDesc, fullDesc: project.fullDesc, categories: projectCategories(project), clientName: project.clientName, liveUrl: project.liveUrl || '', androidUrl: project.androidUrl || '', iosUrl: project.iosUrl || '', status: project.status, completionPercent: project.completionPercent, startDate: project.startDate ? project.startDate.split('T')[0] : '', endDate: project.endDate ? project.endDate.split('T')[0] : '', isPublic: project.isPublic };
   } else {
     form.value = emptyForm();
   }

@@ -57,6 +57,8 @@ model Project {
   categories        Category[]    @default([])
   clientName        String
   liveUrl           String?
+  androidUrl        String?
+  iosUrl            String?
   thumbnailUrl      String?
   status            ProjectStatus @default(PLANNING)
   completionPercent Int           @default(0)

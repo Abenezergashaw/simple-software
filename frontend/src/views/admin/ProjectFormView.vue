@@ -18,7 +18,10 @@
           <div><label class="label">Completion %</label><input v-model="form.completionPercent" type="number" min="0" max="100" class="input-field" /></div>
           <div><label class="label">Start Date</label><input v-model="form.startDate" type="date" class="input-field" /></div>
           <div><label class="label">End Date</label><input v-model="form.endDate" type="date" class="input-field" /></div>
-          <div class="col-span-2"><label class="label">Live URL</label><input v-model="form.liveUrl" type="url" class="input-field" placeholder="https://..." /></div>
+          <div class="sm:col-span-2"><p class="label">Project Links <span class="text-muted font-normal">(optional — customers see a button for each one you fill in)</span></p></div>
+          <div class="sm:col-span-2"><label class="label">Website</label><input v-model="form.liveUrl" type="url" class="input-field" placeholder="https://..." /></div>
+          <div><label class="label">Android (Google Play)</label><input v-model="form.androidUrl" type="url" class="input-field" placeholder="https://play.google.com/store/apps/details?id=..." /></div>
+          <div><label class="label">iOS (App Store)</label><input v-model="form.iosUrl" type="url" class="input-field" placeholder="https://apps.apple.com/app/..." /></div>
           <div class="col-span-2"><label class="label">Thumbnail</label><input type="file" accept="image/*" @change="onThumb" class="input-field py-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm cursor-pointer" /></div>
           <div class="col-span-2"><label class="label">Project Gallery (up to 10 images)</label><input type="file" accept="image/*" multiple @change="onGallery" class="input-field py-2 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:bg-gold/10 file:text-gold file:text-sm cursor-pointer" /></div>
           <div class="col-span-2 flex items-center gap-3">
@@ -42,7 +45,7 @@ import api from '@/api';
 
 const router = useRouter();
 const platformOptions = [{ value: 'WEB', label: 'Web' }, { value: 'MOBILE', label: 'Mobile' }, { value: 'DESKTOP', label: 'Desktop' }];
-const form = ref({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
+const form = ref({ title: '', shortDesc: '', fullDesc: '', categories: ['WEB'], clientName: '', liveUrl: '', androidUrl: '', iosUrl: '', status: 'PLANNING', completionPercent: 0, startDate: '', endDate: '', isPublic: false });
 const thumbFile = ref(null);
 const galleryFiles = ref([]);
 const saving = ref(false);
