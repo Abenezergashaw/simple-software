@@ -10,14 +10,14 @@
 
     <!-- Filters -->
     <div class="flex flex-wrap gap-3 mb-6">
-      <input v-model="search" type="text" placeholder="Search projects..." class="input-field max-w-xs text-sm py-2" />
-      <select v-model="filterCategory" class="select-field max-w-[160px] text-sm py-2">
+      <input v-model="search" type="text" placeholder="Search projects..." class="input-field w-full sm:max-w-xs text-sm py-2" />
+      <select v-model="filterCategory" class="select-field flex-1 sm:flex-none sm:max-w-[160px] text-sm py-2">
         <option value="ALL">All Categories</option>
         <option value="WEB">Web</option>
         <option value="MOBILE">Mobile</option>
         <option value="DESKTOP">Desktop</option>
       </select>
-      <select v-model="filterStatus" class="select-field max-w-[160px] text-sm py-2">
+      <select v-model="filterStatus" class="select-field flex-1 sm:flex-none sm:max-w-[160px] text-sm py-2">
         <option value="ALL">All Statuses</option>
         <option value="PLANNING">Planning</option>
         <option value="IN_PROGRESS">In Progress</option>
@@ -26,74 +26,54 @@
       </select>
     </div>
 
-    <!-- Table -->
-    <div class="card overflow-hidden">
-      <div v-if="loading" class="p-8 space-y-3">
-        <div v-for="i in 5" :key="i" class="skeleton h-12 rounded-lg"></div>
+    <!-- Cards -->
+    <div v-if="loading" class="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+      <div v-for="i in 6" :key="i" class="card overflow-hidden"><div class="skeleton h-36"></div><div class="p-4 space-y-2"><div class="skeleton h-5 w-2/3"></div><div class="skeleton h-4 w-1/2"></div><div class="skeleton h-2 w-full"></div></div></div>
+    </div>
+    <div v-else-if="projects.length === 0" class="card text-center py-16 text-muted">
+      <svg class="w-10 h-10 mx-auto mb-3 text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      No projects found.
+    </div>
+    <div v-else class="grid sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+      <div v-for="p in projects" :key="p.id" @click="$router.push('/admin/projects/' + p.id)" class="card overflow-hidden flex flex-col cursor-pointer group hover:border-gold/30 transition-colors">
+        <!-- Image -->
+        <div class="relative h-36 bg-navy-medium">
+          <img v-if="p.thumbnailUrl" :src="p.thumbnailUrl" :alt="p.title" class="w-full h-full object-contain p-2" />
+          <div v-else class="w-full h-full flex items-center justify-center text-gold/30 text-3xl font-bold">{{ p.title[0] }}</div>
+          <div class="absolute top-2.5 left-2.5 flex flex-wrap gap-1"><span v-for="platform in projectCategories(p)" :key="platform" :class="['badge', categoryBadge(platform)]">{{ formatPlatform(platform) }}</span></div>
+          <span :class="['badge absolute top-2.5 right-2.5', statusBadge(p.status)]">{{ formatStatus(p.status) }}</span>
+        </div>
+        <!-- Body -->
+        <div class="p-4 flex-1 flex flex-col gap-3">
+          <div class="min-w-0">
+            <h3 class="text-white font-semibold truncate group-hover:text-gold transition-colors">{{ p.title }}</h3>
+            <p class="text-muted text-sm truncate">{{ p.clientName }}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="flex-1 h-1.5 bg-navy-medium rounded-full overflow-hidden">
+              <div class="h-full bg-gold rounded-full" :style="{ width: p.completionPercent + '%' }"></div>
+            </div>
+            <span class="text-muted text-xs w-9 text-right">{{ p.completionPercent }}%</span>
+          </div>
+        </div>
+        <!-- Footer -->
+        <div class="px-4 py-3 border-t border-white/5 flex items-center justify-between gap-2" @click.stop>
+          <button @click="togglePublic(p)" class="flex items-center gap-2 text-xs text-muted hover:text-white" :title="p.isPublic ? 'Hide from public portfolio' : 'Show on public portfolio'">
+            <span :class="['w-10 h-5 rounded-full transition-all duration-300 relative', p.isPublic ? 'bg-gold' : 'bg-navy-medium']">
+              <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300', p.isPublic ? 'right-0.5' : 'left-0.5']"></span>
+            </span>
+            {{ p.isPublic ? 'Public' : 'Hidden' }}
+          </button>
+          <div class="flex items-center gap-1">
+            <button @click="openForm(p)" class="p-2 text-muted hover:text-white transition-colors rounded-lg hover:bg-navy-medium" title="Edit">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+            </button>
+            <button @click="confirmDelete(p)" class="p-2 text-muted hover:text-red-400 transition-colors rounded-lg hover:bg-navy-medium" title="Delete">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            </button>
+          </div>
+        </div>
       </div>
-      <div v-else-if="projects.length === 0" class="text-center py-16 text-muted">
-        <svg class="w-10 h-10 mx-auto mb-3 text-muted/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-        No projects found.
-      </div>
-      <div v-else class="overflow-x-auto"><table class="w-full min-w-[760px] text-sm">
-        <thead>
-          <tr class="border-b border-white/5 text-muted text-xs uppercase">
-            <th class="text-left px-5 py-3 font-medium">Project</th>
-            <th class="text-left px-5 py-3 font-medium hidden md:table-cell">Client</th>
-            <th class="text-left px-5 py-3 font-medium hidden lg:table-cell">Category</th>
-            <th class="text-left px-5 py-3 font-medium hidden lg:table-cell">Status</th>
-            <th class="text-left px-5 py-3 font-medium hidden xl:table-cell">Progress</th>
-            <th class="text-left px-5 py-3 font-medium hidden sm:table-cell">Public</th>
-            <th class="px-5 py-3"></th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="p in projects" :key="p.id" class="border-b border-white/5 hover:bg-navy-medium/50 transition-colors">
-            <td class="px-5 py-4">
-              <div class="flex items-center gap-3">
-                <div class="w-9 h-9 rounded-lg overflow-hidden bg-navy-medium flex-shrink-0">
-                  <img v-if="p.thumbnailUrl" :src="p.thumbnailUrl" class="w-full h-full object-cover" :alt="p.title" />
-                  <div v-else class="w-full h-full flex items-center justify-center text-gold/40 text-xs font-bold">{{ (p.categories?.[0] || p.category)[0] }}</div>
-                </div>
-                <span class="text-white font-medium truncate max-w-[180px]">{{ p.title }}</span>
-              </div>
-            </td>
-            <td class="px-5 py-4 text-muted hidden md:table-cell">{{ p.clientName }}</td>
-            <td class="px-5 py-4 hidden lg:table-cell">
-              <div class="flex flex-wrap gap-1"><span v-for="platform in projectCategories(p)" :key="platform" :class="['badge', categoryBadge(platform)]">{{ formatPlatform(platform) }}</span></div>
-            </td>
-            <td class="px-5 py-4 hidden lg:table-cell">
-              <span :class="['badge', statusBadge(p.status)]">{{ formatStatus(p.status) }}</span>
-            </td>
-            <td class="px-5 py-4 hidden xl:table-cell">
-              <div class="flex items-center gap-2">
-                <div class="w-20 h-1.5 bg-navy-medium rounded-full overflow-hidden">
-                  <div class="h-full bg-gold rounded-full" :style="{ width: p.completionPercent + '%' }"></div>
-                </div>
-                <span class="text-muted text-xs">{{ p.completionPercent }}%</span>
-              </div>
-            </td>
-            <td class="px-5 py-4 hidden sm:table-cell">
-              <button @click="togglePublic(p)" :class="['w-10 h-5 rounded-full transition-all duration-300 relative', p.isPublic ? 'bg-gold' : 'bg-navy-medium']">
-                <span :class="['absolute top-0.5 w-4 h-4 rounded-full bg-white transition-all duration-300', p.isPublic ? 'right-0.5' : 'left-0.5']"></span>
-              </button>
-            </td>
-            <td class="px-5 py-4">
-              <div class="flex items-center gap-2 justify-end">
-                <button @click="$router.push('/admin/projects/' + p.id)" class="p-1.5 text-muted hover:text-gold transition-colors rounded" title="View">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                </button>
-                <button @click="openForm(p)" class="p-1.5 text-muted hover:text-white transition-colors rounded" title="Edit">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </button>
-                <button @click="confirmDelete(p)" class="p-1.5 text-muted hover:text-red-400 transition-colors rounded" title="Delete">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table></div>
     </div>
 
     <!-- Project Form Modal -->
